@@ -15,7 +15,12 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.5;
+
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+
 controls.update();
+
 
 window.addEventListener('resize', () => {
   const newWidth = window.innerWidth;
@@ -27,7 +32,32 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
 });
 
-camera.position.z = 40;
+
+var atTop;
+if(window.scrollY == 0){
+  atTop = true;
+}
+else{
+  atTop = false;
+}
+
+window.addEventListener('scroll', function() {
+    if (window.scrollY > 0) {
+      console.log(window.scrollY);
+        // User has scrolled away from the top
+        // Your code here
+    }
+});
+
+
+
+
+
+
+
+
+
+camera.position.set(0, 19.36, 35);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -52,22 +82,23 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 document.addEventListener('mousedown', (event) => {
-  const indexOfTrue = isObjectHoveredArray.findIndex(value => value === true);
-  if( indexOfTrue == -1){
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    const indexOfTrue = isObjectHoveredArray.findIndex(value => value === true);
+    if( indexOfTrue == -1){
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    for (let i = 0; i < hoverModels.length; i++) {
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(hoverModels[i]);
-      if (intersects.length > 0) {
-        followLink(i);
+      for (let i = 0; i < hoverModels.length; i++) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(hoverModels[i]);
+        if (intersects.length > 0) {
+          followLink(i);
+        }
       }
     }
-  }
-  else{
-    followLink(indexOfTrue);
-  }
+    else{
+      followLink(indexOfTrue);
+    }
+
 });
 
 // Add an array to store loaded models
@@ -79,35 +110,36 @@ var noneHovered = true;
 // Listen for mousemove events
 const canvas = document.querySelector('#bg');
 document.addEventListener('mousemove', (event) => {
-  // Calculate mouse position in normalized device coordinates
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // Calculate mouse position in normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // Iterate through the loaded models
-  for (let i = 0; i < hoverModels.length; i++) {
-    // Raycast from the camera for each model
-    raycaster.setFromCamera(mouse, camera);
-    
-    // Check if the ray intersects with the current model
-    const intersects = raycaster.intersectObject(hoverModels[i]);
-    if (intersects.length > 0) {
-      if (!isObjectHoveredArray[i] && noneHovered) {
-          isObjectHoveredArray[i] = true;
-          // Perform actions when the object is hovered over
-          hoverText[i].material.color.set(0xbbbbff);
-          canvas.style.cursor = "pointer";
-          noneHovered = false;
+    // Iterate through the loaded models
+    for (let i = 0; i < hoverModels.length; i++) {
+      // Raycast from the camera for each model
+      raycaster.setFromCamera(mouse, camera);
+      
+      // Check if the ray intersects with the current model
+      const intersects = raycaster.intersectObject(hoverModels[i]);
+      if (intersects.length > 0) {
+        if (!isObjectHoveredArray[i] && noneHovered) {
+            isObjectHoveredArray[i] = true;
+            // Perform actions when the object is hovered over
+            hoverText[i].material.color.set(0xbbbbff);
+            canvas.style.cursor = "pointer";
+            noneHovered = false;
+        }
+      } else {
+        if (isObjectHoveredArray[i]) {
+            isObjectHoveredArray[i] = false;
+            // Perform actions when the object is no longer hovered over
+            hoverText[i].material.color.set(0xeeeeee);
+            canvas.style.cursor = "default";
+            noneHovered = true;
+        }
       }
-    } else {
-      if (isObjectHoveredArray[i]) {
-          isObjectHoveredArray[i] = false;
-          // Perform actions when the object is no longer hovered over
-          hoverText[i].material.color.set(0xeeeeee);
-          canvas.style.cursor = "default";
-          noneHovered = true;
-      }
-    }
-  }
+    }   
+
 });
 
 
@@ -121,28 +153,60 @@ function followLink(linkNum){
   controls.enabled = false;
   animate();
 
+  // "https://github.com/mattmcnee"
+    console.log(linkNum);
   switch (linkNum) {
     case 0:
-      redirectHref = "https://github.com/mattmcnee";
+      redirectHref = "#projects";
+      break;
     case 1:
-      redirectHref = "#skills";
-    case 2:
       redirectHref = "#contact";
+      break;
+    case 2:
+      redirectHref = "#skills";
+      break;
+    case 3:
+      redirectHref = "#cv";
+      break;
+    case 4:
+      redirectHref = "https://github.com/mattmcnee";
+      break;
     default:
       console.log("Link index out of range");
+      redirectHref = "#projects";
   }
+
 }
 
+var clickableLinks = true;
 function animationComplete(){
-  if(redirectHref){
       window.location.href = redirectHref;
-    }
 }
 
 
 
 
 
+function addStar() {
+  const geometry = new THREE.SphereGeometry(0.5, 24, 24);
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const star = new THREE.Mesh(geometry, material);
+
+  // Generate spherical coordinates
+  const radius = THREE.MathUtils.randFloat(80, 300); // Random radius between 60 and 100 units
+  const phi = THREE.MathUtils.randFloat(0, Math.PI * 2); // Random azimuthal angle (0 to 2π radians)
+  const theta = THREE.MathUtils.randFloat(0, Math.PI); // Random polar angle (0 to π radians)
+
+  // Convert spherical coordinates to Cartesian coordinates
+  const x = radius * Math.sin(theta) * Math.cos(phi);
+  const y = radius * Math.sin(theta) * Math.sin(phi);
+  const z = radius * Math.cos(theta);
+
+  star.position.set(x, y, z);
+  scene.add(star);
+}
+
+Array(300).fill().forEach(addStar);
 
 
 
@@ -266,6 +330,14 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
 
   coordinates = new THREE.Vector3(-18, 7, -8);
   setText = "Contact"
+  makeTextAt(font, setText, coordinates);
+
+  coordinates = new THREE.Vector3(14, 3, -8);
+  setText = "    CV"
+  makeTextAt(font, setText, coordinates);
+
+  coordinates = new THREE.Vector3(14, 3, 8);
+  setText = "GitHub"
   makeTextAt(font, setText, coordinates);
 
   renderer.render(scene, camera);
@@ -394,13 +466,17 @@ function updatePosition(prog){
 
 var oldPosition = new THREE.Vector3();
 function animate() {
-  console.log(fly);
 
-  if (textArray.length > 0) {
-    textArray[0].lookAt(camera.position);
-    textArray[1].rotation.copy(textArray[0].rotation);
-    textArray[2].rotation.copy(textArray[0].rotation);
-  }
+  controls.update();
+
+  textArray.forEach((textMesh, index) => {
+    if (index == 0) {
+      textMesh.lookAt(camera.position);
+    }
+    else{
+      textMesh.rotation.copy(textArray[0].rotation);
+    }
+  });
 
   const cameraDirection = new THREE.Vector3();
   camera.getWorldDirection(cameraDirection);
@@ -423,10 +499,10 @@ function animate() {
       // Get the position on the curve
       updatePosition(progress);
     }
-    else{
-      // console.log("done");
+    else if(clickableLinks){
       animationComplete();
       loadedModel.visible = false;
+      clickableLinks = false;
     }
   }
   renderer.render(scene, camera);
