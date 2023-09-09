@@ -11,9 +11,59 @@ const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),
 });
 
-camera.position.z = 45;
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableZoom = false;
+controls.update();
+
+window.addEventListener('resize', () => {
+  const newWidth = window.innerWidth;
+  const newHeight = window.innerHeight;
+  // Update renderer size
+  renderer.setSize(newWidth, newHeight);
+  // Update camera aspect ratio
+  camera.aspect = newWidth / newHeight;
+  camera.updateProjectionMatrix();
+});
+
+camera.position.z = 40;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+let loadedModel;
+const gltfLoader = new GLTFLoader();
+gltfLoader.load('enterprise.glb', (gltf) => {
+  loadedModel = gltf.scene;
+  loadedModel.scale.set(1, 1, 1);
+  const fromAbove = new THREE.Quaternion();
+  fromAbove.setFromEuler(new THREE.Euler(Math.PI, -Math.PI, 0));
+  loadedModel.quaternion.multiply(fromAbove);
+  // loadedModel.castShadow = true;
+  // Add the loaded model to the scene
+  scene.add(loadedModel);
+  animate();
+});
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+document.addEventListener('mousedown', (event) => {
+    // Calculate mouse position in normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Raycast from the camera
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check if the ray intersects with the cube
+    const intersects = raycaster.intersectObject(loadedModel);
+
+    if (intersects.length > 0) {
+        // Cube was clicked, you can perform actions here
+        console.log('Cube Clicked!');
+    }
+});
+
+
 
 
 const fontLoader = new FontLoader();
@@ -35,6 +85,15 @@ scene.add(ambientLight);
 
 
 renderer.render(scene, camera);
+
+
+ const animate = () => {
+    requestAnimationFrame(animate);
+    // Add any other animations or updates to your object here
+    // loadedModel.rotation.x += 0.01;
+    // loadedModel.rotation.y += 0.01;
+    renderer.render(scene, camera);
+};
 
 
 
