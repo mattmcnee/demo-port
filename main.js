@@ -42,20 +42,26 @@ else{
 }
 
 window.addEventListener('scroll', function() {
-    if (window.scrollY > 0 && atTop) {
+    if (window.scrollY > 5 && atTop) {
       atTop = false;
       console.log(window.scrollY);
       beginAnimation();
         // User has scrolled away from the top
         // Your code here
-    } else if (window.scrollY == 0 && !atTop){
+    } else if (window.scrollY <= 5 && !atTop){
       console.log("top");
       atTop = true;
       setCurve();
       updatePosition(0);
       loadedModel.visible = true;
       console.log(loadedModel.position);
+
+      for (let i = 0; i < hoverModels.length; i++) {
+        hoverText[i].visible = true;
+      }
+      clickableLinks = true;
     }
+      console.log(atTop);
 });
 
 
