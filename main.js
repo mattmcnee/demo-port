@@ -59,6 +59,29 @@ gltfLoader.load('enterprise.glb', (gltf) => {
   animate();
 });
 
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+document.addEventListener('mousedown', (event) => {
+    // Calculate mouse position in normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Raycast from the camera
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check if the ray intersects with the cube
+    const intersects = raycaster.intersectObject(loadedModel);
+
+    if (intersects.length > 0) {
+        // Cube was clicked, you can perform actions here
+        console.log('Cube Clicked!');
+    }
+});
+
+
+
+
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(ambientLight);
 
