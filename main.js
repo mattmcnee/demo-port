@@ -42,19 +42,21 @@ else{
 }
 
 window.addEventListener('scroll', function() {
-    if (window.scrollY > 0) {
+    if (window.scrollY > 0 && atTop) {
+      atTop = false;
       console.log(window.scrollY);
+      beginAnimation();
         // User has scrolled away from the top
         // Your code here
+    } else if (window.scrollY == 0 && !atTop){
+      console.log("top");
+      atTop = true;
+      setCurve();
+      updatePosition(0);
+      loadedModel.visible = true;
+      console.log(loadedModel.position);
     }
 });
-
-
-
-
-
-
-
 
 
 camera.position.set(0, 19.36, 35);
@@ -139,20 +141,25 @@ document.addEventListener('mousemove', (event) => {
         }
       }
     }   
-
 });
 
 
-var redirectHref;
-function followLink(linkNum){
+function beginAnimation(){
   for (let i = 0; i < hoverModels.length; i++) {
     hoverText[i].visible = false;
   }
+
+  setCurve();
   clock.start();
   fly = true;
   controls.enabled = false;
   animate();
+}
 
+
+var redirectHref;
+function followLink(linkNum){
+  beginAnimation();
   // "https://github.com/mattmcnee"
     console.log(linkNum);
   switch (linkNum) {
@@ -180,7 +187,10 @@ function followLink(linkNum){
 
 var clickableLinks = true;
 function animationComplete(){
-      window.location.href = redirectHref;
+  if(redirectHref){
+     window.location.href = redirectHref;
+  }
+     
 }
 
 
@@ -457,8 +467,6 @@ function updatePosition(prog){
     // apply to scene
     updateLightPositions();
     renderer.render(scene, camera);
-
-
 }
 
 
