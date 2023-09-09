@@ -65,76 +65,47 @@ document.addEventListener('mousedown', (event) => {
     }
 });
 
-
-
-const fontLoader = new FontLoader();
-let group = new THREE.Group();
-fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
-  const textGeometry = new TextGeometry('three.js', {
+function makeTextAt(font, text, position){
+  const textGeometry = new TextGeometry(text, {
     size: 2,
     height: 0.2,
     font: font,
   });
-  const textMaterial = new THREE.MeshNormalMaterial();
+  const textMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+  const group = new THREE.Group();
 
   textMesh.position.set(-5, 0, 0);
   // Add the text to the group
   group.add(textMesh);
   // Set the group's position to (0, 40, 0)
-  group.position.set(-2, 7, 0);
+  group.position.copy(position)
 
   scene.add(group);
 
-  // scene.add(textMesh);
-  renderer.render(scene, camera);
-});
+  textArray.push(group)
+}
 
-let group2 = new THREE.Group();
+
+
+const fontLoader = new FontLoader();
+const textArray = [];
 fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
-  const textGeometry = new TextGeometry('three.js', {
-    size: 2,
-    height: 0.2,
-    font: font,
-  });
-  const textMaterial = new THREE.MeshNormalMaterial();
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  var coordinates = new THREE.Vector3(-2, 7, 0);
+  var setText = "Projects"
+  makeTextAt(font, setText, coordinates);
 
-  textMesh.position.set(-5, 0, 0);
-  // Add the text to the group
-  group2.add(textMesh);
-  // Set the group's position to (0, 40, 0)
-  group2.position.set(-18, 7, 8);
+  coordinates = new THREE.Vector3(-18, 7, 8);
+  setText = "Skills"
+  makeTextAt(font, setText, coordinates);
 
-  scene.add(group2);
+  coordinates = new THREE.Vector3(-18, 7, -8);
+  setText = "Contact"
+  makeTextAt(font, setText, coordinates);
 
-  // scene.add(textMesh);
   renderer.render(scene, camera);
 });
-
-let group3 = new THREE.Group();
-fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
-  const textGeometry = new TextGeometry('three.js', {
-    size: 2,
-    height: 0.2,
-    font: font,
-  });
-  const textMaterial = new THREE.MeshNormalMaterial();
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-  textMesh.position.set(-5, 0, 0);
-  // Add the text to the group
-  group3.add(textMesh);
-  // Set the group's position to (0, 40, 0)
-  group3.position.set(-18, 7, -8);
-
-  scene.add(group3);
-
-  // scene.add(textMesh);
-  renderer.render(scene, camera);
-});
-
-
 
 
 const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -144,18 +115,14 @@ scene.add(ambientLight);
 renderer.render(scene, camera);
 
 
- const animate = () => {
-    requestAnimationFrame(animate);
+const animate = () => {
+  requestAnimationFrame(animate);
 
-    group.lookAt(camera.position);
-    group2.rotation.copy(group.rotation);
-    group3.rotation.copy(group.rotation);
-    // Add any other animations or updates to your object here
-    // loadedModel.rotation.x += 0.01;
-    // loadedModel.rotation.y += 0.01;
-    renderer.render(scene, camera);
+  textArray[0].lookAt(camera.position);
+  textArray[1].rotation.copy(textArray[0].rotation);
+  textArray[2].rotation.copy(textArray[0].rotation);
 
-
+  renderer.render(scene, camera);
 };
 
 
