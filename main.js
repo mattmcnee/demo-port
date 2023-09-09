@@ -13,6 +13,8 @@ const renderer = new THREE.WebGLRenderer({
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
+controls.enableDamping = true;
+controls.dampingFactor = 0.5;
 controls.update();
 
 window.addEventListener('resize', () => {
@@ -65,7 +67,7 @@ document.addEventListener('mousedown', (event) => {
 
 
 
-
+let textMesh;
 const fontLoader = new FontLoader();
 fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
   const textGeometry = new TextGeometry('three.js', {
@@ -74,7 +76,7 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
     font: font,
   });
   const textMaterial = new THREE.MeshNormalMaterial();
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
   scene.add(textMesh);
   renderer.render(scene, camera);
@@ -89,10 +91,14 @@ renderer.render(scene, camera);
 
  const animate = () => {
     requestAnimationFrame(animate);
+
+    textMesh.lookAt(camera.position);
     // Add any other animations or updates to your object here
     // loadedModel.rotation.x += 0.01;
     // loadedModel.rotation.y += 0.01;
     renderer.render(scene, camera);
+
+
 };
 
 
