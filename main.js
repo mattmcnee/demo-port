@@ -43,6 +43,8 @@ gltfLoader.load('enterprise.glb', (gltf) => {
   // Add the loaded model to the scene
   scene.add(loadedModel);
   createLights();
+  setCurve();
+  updatePosition(0);
   animate();
 });
 
@@ -108,8 +110,34 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
+
+var redirectHref;
 function followLink(linkNum){
-  window.location.href = "https://github.com/mattmcnee";
+  for (let i = 0; i < hoverModels.length; i++) {
+    hoverText[i].visible = false;
+  }
+  clock.start();
+  fly = true;
+  controls.enabled = false;
+  animate();
+
+  switch (linkNum) {
+    case 0:
+      redirectHref = "https://github.com/mattmcnee";
+      // window.location.href = "https://github.com/mattmcnee";
+    case 1:
+      redirectHref = "#skills";
+    case 2:
+      redirectHref = "#contact";
+    default:
+      console.log("Link index out of range");
+  }
+}
+
+function animationComplete(){
+  if(redirectHref){
+      window.location.href = redirectHref;
+    }
 }
 
 
@@ -251,36 +279,86 @@ scene.add(ambientLight);
 
 renderer.render(scene, camera);
 
+function getHalfAngleVector(vector1, vector2) {
+  // Normalize the input vectors
+  vector1.normalize();
+  vector2.normalize();
+
+  // Calculate the dot product of the two vectors
+  const dotProduct = vector1.dot(vector2);
+
+  // Calculate the angle in radians between the vectors
+  const angle = Math.acos(dotProduct);
+
+  // Calculate half of the angle
+  const halfAngle = angle / 2;
+
+  // Calculate the components of the new vector
+  const newX = Math.cos(halfAngle);
+  const newY = Math.sin(halfAngle);
+  const newZ = 0; // Assuming you're working in 2D
+
+  // Create and return the new vector
+  const halfAngleVector = new THREE.Vector3(newX, newY, newZ);
+
+  return halfAngleVector;
+}
+
+// Example usage:
+const v1 = new THREE.Vector3(1, 0, 0);
+const v2 = new THREE.Vector3(0, 1, 0);
+const halfAngleVector = getHalfAngleVector(v1, v2);
+console.log(halfAngleVector);
 
 
 
+
+
+
+
+
+var fly = false;
 var curve = new THREE.CurvePath();
 var points;
 function setCurve() {
   // console.log("set curves");
+  const v1 = new THREE.Vector3(-1, 0, 0);
+  const v2 = getHalfAngleVector(v1, oldPosition);
+
+  const scalar = -10;
+  // Multiply each component by the scalar value
+  v2.x *= scalar;
+  v2.y *= scalar;
+  v2.z *= scalar;
   var romPoints = [
     new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(-30, 0, 10),
+    new THREE.Vector3(-30, 0, 0),
+    // v2,
     oldPosition,
   ];
   curve = new THREE.CatmullRomCurve3(romPoints);
   points = curve.getPoints(100);
 
-   const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-  const line = new THREE.Line(lineGeometry, lineMaterial);
-  scene.add(line);
+  // const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  // const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  // const line = new THREE.Line(lineGeometry, lineMaterial);
+  // scene.add(line);
+  renderer.render(scene, camera);
 }
 
 
 
 
+const euler = new THREE.Euler(Math.PI, Math.PI, -Math.PI/2);
+const fromRight = new THREE.Quaternion();
+fromRight.setFromEuler(euler);
+
 
 
 // Animation loop
 const clock = new THREE.Clock();
-const duration = 5; // Duration of the animation in seconds
-const speed = 1;    // Adjust the speed of the animation
+const duration = 5;
+const speed = 1;
 
 
 
@@ -294,7 +372,6 @@ function updatePosition(prog){
   // console.log(curve.curves);
 
   // quick fix for type error issue
-  try{
     const position = new THREE.Vector3();
     curve.getPointAt(prog, position);
     loadedModel.position.copy(position);
@@ -304,15 +381,11 @@ function updatePosition(prog){
     axis.crossVectors( up, tangent ).normalize();
     const radians = Math.acos(up.dot(tangent));
     loadedModel.quaternion.setFromAxisAngle( axis, radians );
-    // loadedModel.quaternion.multiply(afterQuat);
+    loadedModel.quaternion.multiply(fromRight);
 
     // apply to scene
     updateLightPositions();
     renderer.render(scene, camera);
-  }
-  catch(error){
-    console.log(error + prog);
-  }
 
 
 }
@@ -322,40 +395,43 @@ function updatePosition(prog){
 
 var oldPosition = new THREE.Vector3();
 function animate() {
-  const elapsed = clock.getElapsedTime();
-  const progress = (elapsed * speed) / duration;
+  console.log(fly);
 
   if (textArray.length > 0) {
     textArray[0].lookAt(camera.position);
     textArray[1].rotation.copy(textArray[0].rotation);
     textArray[2].rotation.copy(textArray[0].rotation);
   }
+
   const cameraDirection = new THREE.Vector3();
-camera.getWorldDirection(cameraDirection);
-
-const distance = -60; // Replace with your desired distance
-
-// Calculate the new point
-const newPosition = new THREE.Vector3().copy(cameraDirection).multiplyScalar(distance);
-if (!(
-newPosition.x === oldPosition.x &&
-newPosition.y === oldPosition.y &&
-newPosition.z === oldPosition.z)) {
-  oldPosition.copy(newPosition);
-  setCurve();
-
-}
-
-  // Continue the animation
-  if (progress < 1) {
-    // Get the position on the curve
-    updatePosition(progress);
-
-    requestAnimationFrame(animate);
+  camera.getWorldDirection(cameraDirection);
+  const distance = -60;
+  const newPosition = new THREE.Vector3().copy(cameraDirection).multiplyScalar(distance);
+  if (!(
+  newPosition.x === oldPosition.x &&
+  newPosition.y === oldPosition.y &&
+  newPosition.z === oldPosition.z)) {
+    oldPosition.copy(newPosition);
+  // setCurve();
   }
-  else{
-    console.log("done");
+
+  if(fly){
+    const elapsed = clock.getElapsedTime();
+    const progress = (elapsed * speed) / duration;
+
+    // Continue the animation
+    if (progress < 1) {
+      // Get the position on the curve
+      updatePosition(progress);
+    }
+    else{
+      // console.log("done");
+      animationComplete();
+      loadedModel.visible = false;
+    }
   }
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
 }
 
 
