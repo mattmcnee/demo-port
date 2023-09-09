@@ -114,6 +114,18 @@ function followLink(linkNum){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 const lights = [];
 function createLights() {
   // Create a point light source
@@ -138,6 +150,35 @@ function createLights() {
     lights.push(light);
   }
 }
+
+function updateLightPositions() {
+  const center = loadedModel.position.clone();
+  const numLights = 24;
+  const lightDistance = 40;
+
+  for (let i = 0; i < lights.length; i++) {
+
+    const phi = Math.acos(-1 + (2 * i) / numLights); // Angle from top to bottom
+    const theta = Math.sqrt(numLights * Math.PI * 2) * phi; // Angle around the sphere
+
+    // Calculate the position using spherical coordinates
+    lights[i].position.x = center.x + lightDistance * Math.cos(theta) * Math.sin(phi);
+    lights[i].position.y = center.y + lightDistance * Math.sin(theta) * Math.sin(phi);
+    lights[i].position.z = center.z + lightDistance * Math.cos(phi);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 function makeTextAt(font, text, position, cubeColor) {
   // Create a material for the cube
@@ -211,8 +252,78 @@ scene.add(ambientLight);
 renderer.render(scene, camera);
 
 
-const animate = () => {
-  requestAnimationFrame(animate);
+
+
+var curve = new THREE.CurvePath();
+var points;
+function setCurve() {
+  // console.log("set curves");
+  var romPoints = [
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-30, 0, 10),
+    oldPosition,
+  ];
+  curve = new THREE.CatmullRomCurve3(romPoints);
+  points = curve.getPoints(100);
+
+   const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const line = new THREE.Line(lineGeometry, lineMaterial);
+  scene.add(line);
+}
+
+
+
+
+
+
+// Animation loop
+const clock = new THREE.Clock();
+const duration = 5; // Duration of the animation in seconds
+const speed = 1;    // Adjust the speed of the animation
+
+
+
+// Used for rotation calculations
+const up = new THREE.Vector3( 0, 1, 0 );
+const axis = new THREE.Vector3();
+
+
+function updatePosition(prog){
+
+  // console.log(curve.curves);
+
+  // quick fix for type error issue
+  try{
+    const position = new THREE.Vector3();
+    curve.getPointAt(prog, position);
+    loadedModel.position.copy(position);
+
+    // calculate updated rotation 
+    const tangent = curve.getTangentAt(prog);
+    axis.crossVectors( up, tangent ).normalize();
+    const radians = Math.acos(up.dot(tangent));
+    loadedModel.quaternion.setFromAxisAngle( axis, radians );
+    // loadedModel.quaternion.multiply(afterQuat);
+
+    // apply to scene
+    updateLightPositions();
+    renderer.render(scene, camera);
+  }
+  catch(error){
+    console.log(error + prog);
+  }
+
+
+}
+
+
+
+
+var oldPosition = new THREE.Vector3();
+function animate() {
+  const elapsed = clock.getElapsedTime();
+  const progress = (elapsed * speed) / duration;
 
   if (textArray.length > 0) {
     textArray[0].lookAt(camera.position);
@@ -226,13 +337,26 @@ const distance = -60; // Replace with your desired distance
 
 // Calculate the new point
 const newPosition = new THREE.Vector3().copy(cameraDirection).multiplyScalar(distance);
+if (!(
+newPosition.x === oldPosition.x &&
+newPosition.y === oldPosition.y &&
+newPosition.z === oldPosition.z)) {
+  oldPosition.copy(newPosition);
+  setCurve();
 
-// You can use this newPosition vector as your new point
-console.log(newPosition);
+}
 
-  renderer.render(scene, camera);
-};
+  // Continue the animation
+  if (progress < 1) {
+    // Get the position on the curve
+    updatePosition(progress);
 
+    requestAnimationFrame(animate);
+  }
+  else{
+    console.log("done");
+  }
+}
 
 
 
