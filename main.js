@@ -67,20 +67,75 @@ document.addEventListener('mousedown', (event) => {
 
 
 
-let textMesh;
 const fontLoader = new FontLoader();
+let group = new THREE.Group();
 fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
   const textGeometry = new TextGeometry('three.js', {
-    size: 20,
-    height: 4,
+    size: 2,
+    height: 0.2,
     font: font,
   });
   const textMaterial = new THREE.MeshNormalMaterial();
-  textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
-  scene.add(textMesh);
+  textMesh.position.set(-5, 0, 0);
+  // Add the text to the group
+  group.add(textMesh);
+  // Set the group's position to (0, 40, 0)
+  group.position.set(-2, 7, 0);
+
+  scene.add(group);
+
+  // scene.add(textMesh);
   renderer.render(scene, camera);
 });
+
+let group2 = new THREE.Group();
+fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
+  const textGeometry = new TextGeometry('three.js', {
+    size: 2,
+    height: 0.2,
+    font: font,
+  });
+  const textMaterial = new THREE.MeshNormalMaterial();
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+  textMesh.position.set(-5, 0, 0);
+  // Add the text to the group
+  group2.add(textMesh);
+  // Set the group's position to (0, 40, 0)
+  group2.position.set(-18, 7, 8);
+
+  scene.add(group2);
+
+  // scene.add(textMesh);
+  renderer.render(scene, camera);
+});
+
+let group3 = new THREE.Group();
+fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
+  const textGeometry = new TextGeometry('three.js', {
+    size: 2,
+    height: 0.2,
+    font: font,
+  });
+  const textMaterial = new THREE.MeshNormalMaterial();
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+  textMesh.position.set(-5, 0, 0);
+  // Add the text to the group
+  group3.add(textMesh);
+  // Set the group's position to (0, 40, 0)
+  group3.position.set(-18, 7, -8);
+
+  scene.add(group3);
+
+  // scene.add(textMesh);
+  renderer.render(scene, camera);
+});
+
+
+
 
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(ambientLight);
@@ -92,7 +147,9 @@ renderer.render(scene, camera);
  const animate = () => {
     requestAnimationFrame(animate);
 
-    textMesh.lookAt(camera.position);
+    group.lookAt(camera.position);
+    group2.rotation.copy(group.rotation);
+    group3.rotation.copy(group.rotation);
     // Add any other animations or updates to your object here
     // loadedModel.rotation.x += 0.01;
     // loadedModel.rotation.y += 0.01;
