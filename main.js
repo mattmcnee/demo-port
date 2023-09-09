@@ -50,28 +50,32 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 document.addEventListener('mousedown', (event) => {
-    // Calculate mouse position in normalized device coordinates
+  const indexOfTrue = isObjectHoveredArray.findIndex(value => value === true);
+  if( indexOfTrue == -1){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    // Raycast from the camera
-    raycaster.setFromCamera(mouse, camera);
-
-    // Check if the ray intersects with the cube
-    const intersects = raycaster.intersectObject(loadedModel);
-
-    if (intersects.length > 0) {
-        // Cube was clicked, you can perform actions here
-        console.log('Cube Clicked!');
+    for (let i = 0; i < hoverModels.length; i++) {
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(hoverModels[i]);
+      if (intersects.length > 0) {
+        console.log(`The index of the first true value is: ${i}`);
+        followLink(i);
+      }
     }
-});
+  }
+  else{
 
+    console.log(`The index of the first true value is: ${indexOfTrue}`);
+    followLink(indexOfTrue);
+  }
+});
 
 // Add an array to store loaded models
 const hoverModels = [];
 const hoverText = [];
 const isObjectHoveredArray = Array(hoverModels.length).fill(false);
-// var curHovered = -1;
+var noneHovered = true;
 
 // Listen for mousemove events
 const canvas = document.querySelector('#bg');
@@ -88,24 +92,30 @@ document.addEventListener('mousemove', (event) => {
     // Check if the ray intersects with the current model
     const intersects = raycaster.intersectObject(hoverModels[i]);
     if (intersects.length > 0) {
-      if (!isObjectHoveredArray[i]) {
+      if (!isObjectHoveredArray[i] && noneHovered) {
           isObjectHoveredArray[i] = true;
           // Perform actions when the object is hovered over
-          console.log(`Model ${i + 1} Hovered!`);
+          console.log(`Model ${i} Hovered!`);
           hoverText[i].material.color.set(0xbbbbff);
           canvas.style.cursor = "pointer";
+          noneHovered = false;
       }
     } else {
       if (isObjectHoveredArray[i]) {
           isObjectHoveredArray[i] = false;
           // Perform actions when the object is no longer hovered over
-          console.log(`Model ${i + 1} No Longer Hovered!`);
+          console.log(`Model ${i} No Longer Hovered!`);
           hoverText[i].material.color.set(0xeeeeee);
           canvas.style.cursor = "default";
+          noneHovered = true;
       }
     }
   }
 });
+
+function followLink(linkNum){
+  window.location.href = "https://github.com/mattmcnee";
+}
 
 
 
