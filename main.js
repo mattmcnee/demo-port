@@ -59,14 +59,11 @@ document.addEventListener('mousedown', (event) => {
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObject(hoverModels[i]);
       if (intersects.length > 0) {
-        console.log(`The index of the first true value is: ${i}`);
         followLink(i);
       }
     }
   }
   else{
-
-    console.log(`The index of the first true value is: ${indexOfTrue}`);
     followLink(indexOfTrue);
   }
 });
@@ -95,7 +92,6 @@ document.addEventListener('mousemove', (event) => {
       if (!isObjectHoveredArray[i] && noneHovered) {
           isObjectHoveredArray[i] = true;
           // Perform actions when the object is hovered over
-          console.log(`Model ${i} Hovered!`);
           hoverText[i].material.color.set(0xbbbbff);
           canvas.style.cursor = "pointer";
           noneHovered = false;
@@ -104,7 +100,6 @@ document.addEventListener('mousemove', (event) => {
       if (isObjectHoveredArray[i]) {
           isObjectHoveredArray[i] = false;
           // Perform actions when the object is no longer hovered over
-          console.log(`Model ${i} No Longer Hovered!`);
           hoverText[i].material.color.set(0xeeeeee);
           canvas.style.cursor = "default";
           noneHovered = true;
@@ -146,7 +141,7 @@ function createLights() {
 
 function makeTextAt(font, text, position, cubeColor) {
   // Create a material for the cube
-  const cubeMaterial = new THREE.MeshBasicMaterial({ color: cubeColor, transparent: true, opacity: 0});
+  const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xeeeeee, transparent: true, opacity: 0});
 
   const cubeGeometry = new THREE.BoxGeometry(text.length * 2, 4, 0.2);
 
@@ -183,7 +178,6 @@ function makeTextAt(font, text, position, cubeColor) {
   textArray.push(group);
   hoverModels.push(group);
   hoverText.push(textMesh);
-  console.log(hoverModels);
 }
 
 
@@ -225,6 +219,16 @@ const animate = () => {
     textArray[1].rotation.copy(textArray[0].rotation);
     textArray[2].rotation.copy(textArray[0].rotation);
   }
+  const cameraDirection = new THREE.Vector3();
+camera.getWorldDirection(cameraDirection);
+
+const distance = -60; // Replace with your desired distance
+
+// Calculate the new point
+const newPosition = new THREE.Vector3().copy(cameraDirection).multiplyScalar(distance);
+
+// You can use this newPosition vector as your new point
+console.log(newPosition);
 
   renderer.render(scene, camera);
 };
