@@ -124,7 +124,6 @@ function followLink(linkNum){
   switch (linkNum) {
     case 0:
       redirectHref = "https://github.com/mattmcnee";
-      // window.location.href = "https://github.com/mattmcnee";
     case 1:
       redirectHref = "#skills";
     case 2:
