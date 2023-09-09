@@ -22,22 +22,25 @@ canvas {
 }
 
 
-main {
+main{
+  z-index: 99;
+  position: relative;
+  margin-top: 100vh;
+}
+
+/*main {
   width: 100vw;
   height: calc(100vh - 140px);
   overflow-y: scroll;
   color: white;
-  z-index: 99;
-  position: fixed;
-  top: 100px;
-  left: 0;
+  z-index: 95;
+
   margin: 0px auto;
   padding: 20px 0px;
-/*  background-color: red;*/
   
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-}
+}*/
 
 main::-webkit-scrollbar {
   width: 5px; /* Adjust the width of the scrollbar as needed */

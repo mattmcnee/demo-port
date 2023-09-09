@@ -113,8 +113,8 @@ const lights = [];
 function createLights() {
   // Create a point light source
   const center = new THREE.Vector3(0, 0, 0);
-  const numLights = 24;
-  const lightDistance = 40;
+  const numLights = 6;
+  const lightDistance = 20;
   for (let i = 0; i < numLights; i++) {
     const phi = Math.acos(-1 + (2 * i) / numLights); // Angle from top to bottom
     const theta = Math.sqrt(numLights * Math.PI * 2) * phi; // Angle around the sphere
