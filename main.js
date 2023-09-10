@@ -33,9 +33,12 @@ window.addEventListener('resize', () => {
 });
 
 const modeSwitch = document.getElementById('mode-switch');
+const nav = document.getElementById('flat-nav');
+const main = document.getElementById('main');
 modeSwitch.addEventListener('click', function() {
-  // console.log("2d clicked");
   scene.clear();
+  nav.style.display = "block";
+  main.style.marginTop = "90px";
 });
 
 
@@ -139,6 +142,18 @@ document.addEventListener('mousemove', (event) => {
     // Calculate mouse position in normalized device coordinates
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    if(loadedModel){
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(loadedModel);
+      if (intersects.length > 0 && noneHovered) {
+        canvas.style.cursor = "move";
+      }
+      else if(noneHovered){
+        canvas.style.cursor = "default";
+      }
+    }
+
 
     // Iterate through the loaded models
     for (let i = 0; i < hoverModels.length; i++) {
