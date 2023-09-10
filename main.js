@@ -365,7 +365,7 @@ function makeTextAt(font, text, position, cubeColor) {
 
 const fontLoader = new FontLoader();
 const textArray = [];
-fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
+fontLoader.load('helvetiker_bold.typeface.json', (font) => {
   var coordinates = new THREE.Vector3(-2, 7, 0);
   var setText = "Projects"
   makeTextAt(font, setText, coordinates);
