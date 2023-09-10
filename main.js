@@ -44,8 +44,12 @@ else{
 window.addEventListener('scroll', function() {
     if (window.scrollY > 5 && atTop) {
       atTop = false;
-      console.log(window.scrollY);
-      beginAnimation();
+      if(clickableLinks){
+        console.log("scroll call");
+        console.log(window.scrollY);
+        beginAnimation();
+      }
+
         // User has scrolled away from the top
         // Your code here
     } else if (window.scrollY <= 5 && !atTop){
@@ -90,6 +94,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 document.addEventListener('mousedown', (event) => {
+  if(clickableLinks){
     const indexOfTrue = isObjectHoveredArray.findIndex(value => value === true);
     if( indexOfTrue == -1){
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -106,7 +111,7 @@ document.addEventListener('mousedown', (event) => {
     else{
       followLink(indexOfTrue);
     }
-
+  }
 });
 
 // Add an array to store loaded models
@@ -118,6 +123,7 @@ var noneHovered = true;
 // Listen for mousemove events
 const canvas = document.querySelector('#bg');
 document.addEventListener('mousemove', (event) => {
+  if (clickableLinks){
     // Calculate mouse position in normalized device coordinates
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -146,11 +152,13 @@ document.addEventListener('mousemove', (event) => {
             noneHovered = true;
         }
       }
-    }   
+    }  
+  } 
 });
 
 
 function beginAnimation(){
+  console.log("animate");
   for (let i = 0; i < hoverModels.length; i++) {
     hoverText[i].visible = false;
   }
@@ -165,6 +173,7 @@ function beginAnimation(){
 
 var redirectHref;
 function followLink(linkNum){
+  console.log("follow link");
   beginAnimation();
   // "https://github.com/mattmcnee"
     console.log(linkNum);
@@ -186,15 +195,24 @@ function followLink(linkNum){
       break;
     default:
       console.log("Link index out of range");
-      redirectHref = "#projects";
+      redirectHref = null;
   }
 
 }
 
 var clickableLinks = true;
 function animationComplete(){
-  if(redirectHref){
-     window.location.href = redirectHref;
+  console.log("called animationComplete")
+  if(redirectHref && clickableLinks){
+    if (redirectHref[0] == "#") {
+      document.querySelector(redirectHref).scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+    else{     
+      window.location.href = redirectHref;
+    }
+
   }
      
 }
@@ -517,6 +535,7 @@ function animate() {
       animationComplete();
       loadedModel.visible = false;
       clickableLinks = false;
+      fly = false;
     }
   }
   renderer.render(scene, camera);
