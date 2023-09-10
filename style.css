@@ -21,6 +21,18 @@ canvas {
   font-style: normal;
 }
 
+#mode-switch{
+  z-index: 100;
+  position: fixed;
+  right: 0;
+  bottom: 3px;
+  color: white;
+}
+
+#mode-switch:hover{
+  cursor: pointer;
+}
+
 
 main{
   z-index: 99;

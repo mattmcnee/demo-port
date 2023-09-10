@@ -32,6 +32,14 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
 });
 
+const modeSwitch = document.getElementById('mode-switch');
+modeSwitch.addEventListener('click', function() {
+  // console.log("2d clicked");
+  scene.clear();
+});
+
+
+
 
 var atTop;
 if(window.scrollY == 0){
@@ -45,27 +53,28 @@ window.addEventListener('scroll', function() {
     if (window.scrollY > 5 && atTop) {
       atTop = false;
       if(clickableLinks){
-        console.log("scroll call");
-        console.log(window.scrollY);
+        // console.log("scroll call");
+        // console.log(window.scrollY);
         beginAnimation();
       }
 
         // User has scrolled away from the top
         // Your code here
     } else if (window.scrollY <= 5 && !atTop){
-      console.log("top");
+      // console.log("top");
       atTop = true;
       setCurve();
       updatePosition(0);
       loadedModel.visible = true;
-      console.log(loadedModel.position);
+      controls.enabled = true;
+      // console.log(loadedModel.position);
 
       for (let i = 0; i < hoverModels.length; i++) {
         hoverText[i].visible = true;
       }
       clickableLinks = true;
     }
-      console.log(atTop);
+      // console.log(atTop);
 });
 
 
@@ -84,6 +93,9 @@ gltfLoader.load('enterprise.glb', (gltf) => {
   // loadedModel.castShadow = true;
   // Add the loaded model to the scene
   scene.add(loadedModel);
+  if (!atTop) {
+    loadedModel.visible = false;
+  }
   createLights();
   setCurve();
   updatePosition(0);
@@ -158,7 +170,7 @@ document.addEventListener('mousemove', (event) => {
 
 
 function beginAnimation(){
-  console.log("animate");
+  // console.log("animate");
   for (let i = 0; i < hoverModels.length; i++) {
     hoverText[i].visible = false;
   }
@@ -173,10 +185,10 @@ function beginAnimation(){
 
 var redirectHref;
 function followLink(linkNum){
-  console.log("follow link");
+  // console.log("follow link");
   beginAnimation();
   // "https://github.com/mattmcnee"
-    console.log(linkNum);
+    // console.log(linkNum);
   switch (linkNum) {
     case 0:
       redirectHref = "#projects";
@@ -202,7 +214,7 @@ function followLink(linkNum){
 
 var clickableLinks = true;
 function animationComplete(){
-  console.log("called animationComplete")
+  // console.log("called animationComplete")
   if(redirectHref && clickableLinks){
     if (redirectHref[0] == "#") {
       document.querySelector(redirectHref).scrollIntoView({
@@ -374,6 +386,12 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
   setText = "GitHub"
   makeTextAt(font, setText, coordinates);
 
+  if (!atTop) {
+    for (let i = 0; i < hoverModels.length; i++) {
+      hoverText[i].visible = false;
+    }
+  }
+
   renderer.render(scene, camera);
 });
 
@@ -413,7 +431,7 @@ function getHalfAngleVector(vector1, vector2) {
 const v1 = new THREE.Vector3(1, 0, 0);
 const v2 = new THREE.Vector3(0, 1, 0);
 const halfAngleVector = getHalfAngleVector(v1, v2);
-console.log(halfAngleVector);
+// console.log(halfAngleVector);
 
 
 
